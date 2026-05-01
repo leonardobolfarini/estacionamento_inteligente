@@ -2,7 +2,6 @@ generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
 }
-
 datasource db {
   provider = "postgresql"
 }
@@ -39,7 +38,7 @@ model Sensors {
   sector_id Int
 
   current_state States @default(FREE)
-  last_state_change DateTime
+  last_state_change DateTime?
 
   events SensorsEvents[]
 }
