@@ -1,0 +1,50 @@
+CREATE DATABASE sistema_estacionamento;
+
+CREATE TABLE IF NOT EXISTS spots (
+    spot_id VARCHAR(5) PRIMARY KEY,
+    sector_id CHAR(1) NOT NULL,
+    current_state VARCHAR(10) NOT NULL CHECK (current_state IN ('FREE', 'OCCUPIED')),
+    last_change_ts TIMESTAMP,
+    last_event_id UUID
+);
+
+CREATE TABLE IF NOT EXISTS spot_events (
+    event_id UUID PRIMARY KEY,
+    ts TIMESTAMP NOT NULL,
+    sector_id CHAR(1) NOT NULL,
+    spot_id VARCHAR(5) NOT NULL,
+    state VARCHAR(10) NOT NULL CHECK (state IN ('FREE', 'OCCUPIED')),
+    raw_payload_json JSONB
+);
+
+CREATE TABLE IF NOT EXISTS sector_snapshots (
+    id SERIAL PRIMARY KEY,
+    ts TIMESTAMP NOT NULL,
+    sector_id CHAR(1) NOT NULL,
+    occupied_count INT NOT NULL,
+    free_count INT NOT NULL,
+    occupancy_rate NUMERIC(5,2) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS incidents (
+    id SERIAL PRIMARY KEY,
+    ts_open TIMESTAMP NOT NULL,
+    ts_close TIMESTAMP,
+    type VARCHAR(20) NOT NULL CHECK (
+        type IN ('STUCK_OCCUPIED', 'STUCK_FREE', 'FLAPPING')
+    ),
+    severity VARCHAR(10),
+    sector_id CHAR(1),
+    spot_id VARCHAR(5),
+    evidence_json JSONB,
+    status VARCHAR(10) NOT NULL DEFAULT 'OPEN'
+);
+
+CREATE TABLE IF NOT EXISTS recommendations_log (
+    id SERIAL PRIMARY KEY,
+    ts TIMESTAMP NOT NULL,
+    from_sector CHAR(1) NOT NULL,
+    recommended_sector CHAR(1) NOT NULL,
+    reason TEXT,
+    data_json JSONB
+);
