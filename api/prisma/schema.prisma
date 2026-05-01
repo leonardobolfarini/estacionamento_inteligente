@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum States {
+  OCCUPIED
+  FREE
+}
+
+model Sectors {
+  sector_id Int @id @default(autoincrement())
+
+  sensors Sensors[]
+  snapshots SectorsSnapshots[]
+}
+
+model SectorsSnapshots {
+  snapshot_id Int @id @default(autoincrement())
+
+  occupied_count Int
+  free_count Int
+  occupancy_rate Int
+
+  sector Sectors @relation(fields: [sector_id], references: [sector_id])
+  sector_id Int
+
+  timestamp DateTime
+}
+
+model Sensors {
+  sensor_id Int @id @default(autoincrement())
+
+  sector Sectors @relation(fields: [sector_id], references: [sector_id])
+  sector_id Int
+
+  current_state States @default(FREE)
+  last_state_change DateTime
+
+  events SensorsEvents[]
+}
+
+model SensorsEvents {
+  event_id Int @id @default(autoincrement())
+
+  sensor Sensors @relation(fields: [sensor_id], references: [sensor_id])
+  sensor_id Int
+
+  state States
+
+  timestamp DateTime
+}
