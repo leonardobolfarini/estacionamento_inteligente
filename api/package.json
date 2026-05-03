@@ -8,7 +8,7 @@
   "main": "main.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx tsx main.ts"
+    "dev": "npx tsx watch main.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",

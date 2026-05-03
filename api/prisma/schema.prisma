@@ -1,55 +1,104 @@
-generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
-}
-datasource db {
-  provider = "postgresql"
-}
+  generator client {
+    provider = "prisma-client"
+    output   = "../generated/prisma"
+  }
+  datasource db {
+    provider = "postgresql"
+  }
 
-enum States {
-  OCCUPIED
-  FREE
-}
+  enum States {
+    OCCUPIED
+    FREE
+  }
 
-model Sectors {
-  sector_id Int @id @default(autoincrement())
+  enum IncidentTypes {
+    STUCK_OCCUPIED
+    STUCK_FREE
+    FLAPPING
+  }
 
-  sensors Sensors[]
-  snapshots SectorsSnapshots[]
-}
+  enum Severity {
+    LOW
+    MEDIUM
+    HIGH
+  }
 
-model SectorsSnapshots {
-  snapshot_id Int @id @default(autoincrement())
+  enum Status {
+    OPEN
+    CLOSE
+    PENDING
+  }
 
-  occupied_count Int
-  free_count Int
-  occupancy_rate Int
+  model Sectors {
+    sector_id String @id
 
-  sector Sectors @relation(fields: [sector_id], references: [sector_id])
-  sector_id Int
+    sensors Sensors[]
+    snapshots SectorsSnapshots[]
+    incidents Incidents[]
+    recommendations RecommendationsLog[]
+  }
 
-  timestamp DateTime
-}
+  model SectorsSnapshots {
+    snapshot_id Int @id @default(autoincrement())
 
-model Sensors {
-  sensor_id Int @id @default(autoincrement())
+    occupied_count Int
+    free_count Int
+    occupancy_rate Int
 
-  sector Sectors @relation(fields: [sector_id], references: [sector_id])
-  sector_id Int
+    sector Sectors @relation(fields: [sector_id], references: [sector_id])
+    sector_id String
 
-  current_state States @default(FREE)
-  last_state_change DateTime?
+    timestamp DateTime
+  }
 
-  events SensorsEvents[]
-}
+  model Sensors {
+    sensor_id String @id
 
-model SensorsEvents {
-  event_id Int @id @default(autoincrement())
+    sector Sectors @relation(fields: [sector_id], references: [sector_id])
+    sector_id String
 
-  sensor Sensors @relation(fields: [sensor_id], references: [sensor_id])
-  sensor_id Int
+    current_state States @default(FREE)
+    last_state_change DateTime?
 
-  state States
+    events SensorsEvents[]
+    incidents Incidents[]
+  }
 
-  timestamp DateTime
-}
+  model SensorsEvents {
+    event_id Int @id @default(autoincrement())
+
+    sensor Sensors @relation(fields: [sensor_id], references: [sensor_id])
+    sensor_id String
+
+    state States
+
+    timestamp DateTime
+  }
+
+  model Incidents {
+    incident_id Int @id @default(autoincrement())
+    timestamp_open DateTime
+    timestamp_close DateTime?
+    type IncidentTypes
+    severity Severity
+
+
+    sector Sectors @relation(fields: [sector_id], references: [sector_id])
+    sector_id String
+
+    sensor Sensors @relation(fields: [sensor_id], references: [sensor_id])
+    sensor_id String
+
+    evidence String?
+    status Status @default(PENDING)
+  }
+
+  model RecommendationsLog {
+    log_id Int @id @default(autoincrement())
+    timestamp DateTime
+
+    sector Sectors @relation(fields: [recommended_sector], references: [sector_id])
+    recommended_sector String
+
+    reason String?
+  }
