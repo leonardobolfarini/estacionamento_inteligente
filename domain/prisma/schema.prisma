@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Sectors {
+  sector_id       String               @id
+  incidents       Incidents[]
+  snapshots       SectorsSnapshots[]
+  sensors         Sensors[]
+}
+
+model SectorsSnapshots {
+  snapshot_id    Int      @id @default(autoincrement())
+  occupied_count Int
+  free_count     Int
+  occupancy_rate Int
+  sector_id      String
+  timestamp      DateTime
+  sector         Sectors  @relation(fields: [sector_id], references: [sector_id])
+}
+
+model Sensors {
+  sensor_id         String          @id
+  sector_id         String
+  current_state     States          @default(FREE)
+  last_state_change DateTime?
+  incidents         Incidents[]
+  sector            Sectors         @relation(fields: [sector_id], references: [sector_id])
+  events            SensorsEvents[]
+}
+
+model SensorsEvents {
+  event_id  Int      @id @default(autoincrement())
+  sensor_id String
+  state     States
+  timestamp DateTime
+  sensor    Sensors  @relation(fields: [sensor_id], references: [sensor_id])
+}
+
+model Incidents {
+  incident_id     Int           @id @default(autoincrement())
+  timestamp_open  DateTime
+  timestamp_close DateTime?
+  type            IncidentTypes
+  severity        Severity
+  sector_id       String
+  sensor_id       String
+  evidence        String?
+  status          Status        @default(PENDING)
+  sector          Sectors       @relation(fields: [sector_id], references: [sector_id])
+  sensor          Sensors       @relation(fields: [sensor_id], references: [sensor_id])
+}
+
+model RecommendationsLog {
+  log_id             Int      @id @default(autoincrement())
+  timestamp          DateTime
+  recommended_sector String
+  reason             String?
+}
+
+enum States {
+  OCCUPIED
+  FREE
+}
+
+enum IncidentTypes {
+  STUCK_OCCUPIED
+  STUCK_FREE
+  FLAPPING
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum Status {
+  OPEN
+  CLOSE
+  PENDING
+}

@@ -1,6 +1,6 @@
 import express from "express";
 import { Response, Request } from "express";
-import { prisma } from "./adapters/prisma_adapter";
+import { prisma } from "../domain/adapters/prisma_adapter";
 
 const app = express();
 
@@ -109,6 +109,24 @@ app.get("/incidents", async (req: Request, res: Response) => {
   });
 
   res.json(incidents);
+});
+
+app.get("/recommendation", async (req: Request, res: Response) => {
+  const latest = await prisma.recommendationsLog.findFirst({
+    orderBy: { timestamp: "desc" },
+  });
+
+  if (!latest) {
+    return res
+      .status(404)
+      .json({ message: "Nenhuma recomendação disponível no momento." });
+  }
+
+  res.json({
+    recommendedSector: latest.recommended_sector,
+    reason: latest.reason,
+    ts: latest.timestamp,
+  });
 });
 
 app.listen(5000, () => {
