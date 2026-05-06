@@ -65,4 +65,4 @@ console.log(' Simulador de falhas iniciado');
 console.log(`   - Intervalo de injeção: ${FAILURE_INJECTION_INTERVAL / 1000}s`);
 console.log(`   - Probabilidade de falha: ${FAILURE_PROBABILITY * 100}%`);
 console.log(`   - Duração das falhas: ${FAILURE_DURATION_MIN / 1000}s a ${FAILURE_DURATION_MAX / 1000}s`);
-console.log('   - Vou injetar falhas aleatoriamente neste simulador...\n');
+console.log('   - Injetando falhas aleatoriamente no simulador...\n');

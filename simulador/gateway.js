@@ -41,7 +41,7 @@ class ParkingGateway {
   }
 }
 
-// Criar 3 gateways
+// Criar os 3 gateways
 const gateways = [];
 for (let i = 1; i <= NUM_GATEWAYS; i++) {
   gateways.push(new ParkingGateway(i));
